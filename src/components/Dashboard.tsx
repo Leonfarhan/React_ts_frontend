@@ -1,19 +1,18 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify'; // Import toast
+import { toast } from 'react-toastify';
+import { useAuth } from "../services/AuthContext.tsx";
 
 const Dashboard: React.FC = () => {
+  const { user, logout} = useAuth();
   const navigate = useNavigate();
-  const username = localStorage.getItem('user')
-      ? JSON.parse(localStorage.getItem('user') || '{}').username
-      : 'Guest';
+  const username = user?.username || 'Guest'; // opsi chaining
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/');
     toast.success('Logged out successfully!');
-  };
+  }
 
   return (
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>

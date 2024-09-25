@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { login } from '../services/api';
+import { useAuth } from "../services/AuthContext.tsx";
 
 interface LoginResponse {
   message: string;
@@ -13,6 +14,7 @@ interface LoginResponse {
 }
 
 const Login: React.FC = () => {
+  const { setUser, setRole } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +42,9 @@ const Login: React.FC = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('role', data.user.role);
 
+        setUser(data.user);
+        setRole(data.user.role);
+
         toast.success(data.message || 'Login successful!');
         navigate('/dashboard');
         console.log(localStorage)
@@ -56,8 +61,6 @@ const Login: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-
-
   };
 
   return (

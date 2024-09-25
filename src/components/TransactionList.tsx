@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getAllBorrowingTransactions, deleteBorrowingTransaction } from '../services/api';
+import {Link, useNavigate} from 'react-router-dom';
+import { getAllBorrowingTransactions, deleteBorrowingTransaction} from '../services/api';
 import { toast } from 'react-toastify';
+import { useAuth } from "../services/AuthContext.tsx";
 
 interface Transaction {
   id: number;
@@ -19,16 +20,11 @@ interface Transaction {
 }
 
 const TransactionList: React.FC = () => {
+  const { role } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [role, setRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userRole = localStorage.getItem('role');
-    setRole(userRole);
-
-    fetchTransactions();
-  }, []);
+  useEffect(() => { fetchTransactions() }, []);
 
   const fetchTransactions = async () => {
     try {
@@ -86,7 +82,7 @@ const TransactionList: React.FC = () => {
                     </thead>
                     <tbody>
                     {transactions.map((transaction, key) => (
-                        <tr key={key}>
+                        <tr key={key} className='text-center'>
                           <td className='text-center'>{key+1}</td>
                           <td>{transaction.book.title}</td>
                           <td>{transaction.user.username}</td>
@@ -94,10 +90,10 @@ const TransactionList: React.FC = () => {
                           <td>{transaction.returnDate}</td>
                           <td>{transaction.status}</td>
                           { role === 'ADMIN' ? (
-                              <td>
+                              <td className='d-flex justify-content-evenly'>
                                 <Link
                                     to={`/transactions/${transaction.id}/edit`}
-                                    className="btn btn-warning btn-sm mr-2"
+                                    className="btn btn-warning btn-sm"
                                 >
                                   Edit
                                 </Link>
