@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {Link, useNavigate} from 'react-router-dom';
-import { getAllBorrowingTransactions, deleteBorrowingTransaction} from '../services/api';
+import { Link } from 'react-router-dom';
+import { getAllBorrowingTransactions, deleteBorrowingTransaction } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext.tsx";
 
@@ -20,16 +20,22 @@ interface Transaction {
 }
 
 const TransactionList: React.FC = () => {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const navigate = useNavigate();
 
-  useEffect(() => { fetchTransactions() }, []);
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   const fetchTransactions = async () => {
     try {
       const response = await getAllBorrowingTransactions();
-      setTransactions(response.data as Transaction[]);
+      let allTransactions = response.data as Transaction[];
+
+      if (role === 'USER' && user) {
+        allTransactions = allTransactions.filter(transaction => transaction.user.id === user.id);
+      }
+      setTransactions(allTransactions);
     } catch (error) {
       console.error('Fetch transactions error:', error);
       toast.error('Failed to fetch transactions.');
@@ -57,14 +63,18 @@ const TransactionList: React.FC = () => {
               <div className="card">
                 <div className="card-header d-flex justify-content-between align-items-center">
                   <h4 className="card-title">Borrowing Transactions</h4>
-                  <div className="d-flex gap-2">
-                    <Link to="/transactions/create" className="btn btn-primary">
-                      Create Transaction
-                    </Link>
-                    <Link to="/dashboard" className="btn btn-secondary ml-2">
-                      Back to Dashboard
-                    </Link>
-                  </div>
+                  {user && role && (
+                      <div className="d-flex gap-2">
+                        {role === 'ADMIN' && (
+                            <Link to="/transactions/create" className="btn btn-primary">
+                              Create Transaction
+                            </Link>
+                        )}
+                        <Link to="/dashboard" className="btn btn-secondary ml-2">
+                          Back to Dashboard
+                        </Link>
+                      </div>
+                  )}
                 </div>
 
                 <div className="card-body">
@@ -73,7 +83,9 @@ const TransactionList: React.FC = () => {
                     <tr>
                       <th className="text-center">No</th>
                       <th className="text-center">Book</th>
-                      <th className="text-center">User</th>
+                      { role === 'ADMIN' && (
+                          <th className="text-center">User</th>
+                      )}
                       <th className="text-center">Borrow Date</th>
                       <th className="text-center">Return Date</th>
                       <th className="text-center">Status</th>
@@ -83,9 +95,11 @@ const TransactionList: React.FC = () => {
                     <tbody>
                     {transactions.map((transaction, key) => (
                         <tr key={key} className='text-center'>
-                          <td className='text-center'>{key+1}</td>
+                          <td className='text-center'>{key + 1}</td>
                           <td>{transaction.book.title}</td>
-                          <td>{transaction.user.username}</td>
+                          { role === 'ADMIN' && (
+                              <td>{transaction.user.username}</td>
+                          )}
                           <td>{transaction.borrowDate}</td>
                           <td>{transaction.returnDate}</td>
                           <td>{transaction.status}</td>
@@ -106,10 +120,14 @@ const TransactionList: React.FC = () => {
                               </td>
                           ) : role === 'USER' ? (
                               <td>
+                                {/* Tombol Return di sini */}
                                 <Link
-                                    className='btn btn-warning btn-sm'>
+                                    to={`/transactions/${transaction.id}/return`} // atau endpoint lain yang sesuai
+                                    className="btn btn-warning btn-sm"
+                                >
                                   Return
                                 </Link>
+
                               </td>
                           ) : null}
                         </tr>

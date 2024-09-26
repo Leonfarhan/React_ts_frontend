@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { getAllBooks, deleteBook } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext";
@@ -15,7 +15,7 @@ const BookList: React.FC = () => {
 
   const { user, role, loading } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     fetchBooks();
