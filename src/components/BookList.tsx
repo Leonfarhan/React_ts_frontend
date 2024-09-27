@@ -4,18 +4,17 @@ import { getAllBooks, deleteBook } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext";
 
-const BookList: React.FC = () => {
-  interface Book {
-    id: number;
-    title: string;
-    author: string;
-    publisher: string;
-    publicationYear: number;
-  }
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  publisher: string;
+  publicationYear: number;
+}
 
-  const { user, role, loading } = useAuth();
+const BookList: React.FC = () => {
+  const { user, role } = useAuth(); // Hapus loading karena tidak digunakan
   const [books, setBooks] = useState<Book[]>([]);
-  // const navigate = useNavigate();
 
   useEffect(() => {
     fetchBooks();
@@ -76,43 +75,35 @@ const BookList: React.FC = () => {
                   </tr>
                   </thead>
                   <tbody>
-                  {loading ? (
-                      <tr>
-                        <td colSpan={5} className="text-center">
-                          Loading...
+                  {books.map((book) => (
+                      <tr key={book.id}>
+                        <td>{book.title}</td>
+                        <td>{book.author}</td>
+                        <td>{book.publisher}</td>
+                        <td className="text-center">{book.publicationYear}</td>
+                        <td className="text-center">
+                          {user && role && (
+                              <>
+                                {role === 'ADMIN' && (
+                                    <>
+                                      <Link to={`/books/${book.id}/edit`} className="btn btn-warning btn-sm me-2">
+                                        Edit
+                                      </Link>
+                                      <button onClick={() => handleDelete(book.id)} className="btn btn-danger btn-sm">
+                                        Delete
+                                      </button>
+                                    </>
+                                )}
+                                {role === 'USER' && (
+                                    <Link to={`/transactions/create?bookId=${book.id}`} className="btn btn-success btn-sm">
+                                      Borrow
+                                    </Link>
+                                )}
+                              </>
+                          )}
                         </td>
                       </tr>
-                  ) : (
-                      books.map((book) => (
-                          <tr key={book.id}>
-                            <td>{book.title}</td>
-                            <td>{book.author}</td>
-                            <td>{book.publisher}</td>
-                            <td className="text-center">{book.publicationYear}</td>
-                            <td className="text-center">
-                              {user && role && (
-                                  <>
-                                    {role === 'ADMIN' && (
-                                        <>
-                                          <Link to={`/books/${book.id}/edit`} className="btn btn-warning btn-sm me-2">
-                                            Edit
-                                          </Link>
-                                          <button onClick={() => handleDelete(book.id)} className="btn btn-danger btn-sm">
-                                            Delete
-                                          </button>
-                                        </>
-                                    )}
-                                    {role === 'USER' && (
-                                        <Link to={`/transactions/create?bookId=${book.id}`} className="btn btn-success btn-sm">
-                                          Borrow
-                                        </Link>
-                                    )}
-                                  </>
-                              )}
-                            </td>
-                          </tr>
-                      ))
-                  )}
+                  ))}
                   </tbody>
                 </table>
               </div>

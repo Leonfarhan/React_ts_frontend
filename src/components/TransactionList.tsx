@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllBorrowingTransactions, deleteBorrowingTransaction } from '../services/api';
+import {getAllBorrowingTransactions, deleteBorrowingTransaction, updateBorrowingTransaction} from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext.tsx";
 
@@ -55,6 +55,47 @@ const TransactionList: React.FC = () => {
     }
   };
 
+  const handleReturnRequest = async (id: number) => {
+    try {
+      const transactionToUpdate = transactions.find(t => t.id === id);
+
+      if (!transactionToUpdate) {
+        toast.error("Transaction not found");
+        return;
+      }
+
+      await updateBorrowingTransaction(id, {
+        ...transactionToUpdate,
+        status: 'Pending',
+      });
+      toast.success('Return request submitted!');
+      fetchTransactions();
+    } catch (error) {
+      console.error('Return request error:', error);
+      toast.error('Failed to submit return request.');
+    }
+  };
+
+  const handleApproveReturn = async (id: number) => {
+    try {
+      const transactionToUpdate = transactions.find(t => t.id === id);
+      if (!transactionToUpdate) {
+        toast.error("Transaction not found");
+        return;
+      }
+
+      await updateBorrowingTransaction(id, {
+        ...transactionToUpdate,
+        status: 'Returned',
+      });
+      toast.success('Return request approved!');
+      fetchTransactions();
+    } catch (error) {
+      console.error('Approve return error:', error);
+      toast.error('Failed to approve return request.');
+    }
+  };
+
   return (
       <div>
         <div className="container mt-5">
@@ -65,11 +106,11 @@ const TransactionList: React.FC = () => {
                   <h4 className="card-title">Borrowing Transactions</h4>
                   {user && role && (
                       <div className="d-flex gap-2">
-                        {role === 'ADMIN' && (
-                            <Link to="/transactions/create" className="btn btn-primary">
-                              Create Transaction
-                            </Link>
-                        )}
+                        {/*{role === 'ADMIN' && (*/}
+                        {/*    <Link to="/transactions/create" className="btn btn-primary">*/}
+                        {/*      Create Transaction*/}
+                        {/*    </Link>*/}
+                        {/*)}*/}
                         <Link to="/dashboard" className="btn btn-secondary ml-2">
                           Back to Dashboard
                         </Link>
@@ -81,15 +122,15 @@ const TransactionList: React.FC = () => {
                   <table className="table table-bordered table-striped mt-2">
                     <thead>
                     <tr>
-                      <th className="text-center">No</th>
-                      <th className="text-center">Book</th>
+                      <th className="text-center align-middle">No</th>
+                      <th className="text-center align-middle">Book</th>
                       { role === 'ADMIN' && (
-                          <th className="text-center">User</th>
+                          <th className="text-center align-middle">User</th>
                       )}
-                      <th className="text-center">Borrow Date</th>
-                      <th className="text-center">Return Date</th>
-                      <th className="text-center">Status</th>
-                      <th className="text-center">Actions</th>
+                      <th className="text-center align-middle">Borrow Date</th>
+                      <th className="text-center align-middle">Return Date</th>
+                      <th className="text-center align-middle">Status</th>
+                      <th className="text-center align-middle">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -117,18 +158,29 @@ const TransactionList: React.FC = () => {
                                 >
                                   Delete
                                 </button>
+                                {transaction.status === 'Pending' && (
+                                    <button
+                                        onClick={() => handleApproveReturn(transaction.id)} // Gunakan handleApproveReturn
+                                        className="btn btn-success btn-sm ms-2"
+                                    >
+                                      Approve
+                                    </button>
+                                )}
                               </td>
                           ) : role === 'USER' ? (
                               <td>
-                                {/* Tombol Return di sini */}
-                                <Link
-                                    to={`/transactions/${transaction.id}/return`} // atau endpoint lain yang sesuai
-                                    className="btn btn-warning btn-sm"
-                                >
-                                  Return
-                                </Link>
-
+                                {transaction.status === 'Borrowed' && (
+                                    <button
+                                        onClick={() => handleReturnRequest(transaction.id)}
+                                        className="btn btn-warning btn-sm"
+                                    >
+                                      Return
+                                    </button>
+                                )}
+                                {transaction.status === 'Pending' && <span>Pending</span>}
+                                {transaction.status === 'Returned' && <span>Done</span>}
                               </td>
+
                           ) : null}
                         </tr>
                     ))}
