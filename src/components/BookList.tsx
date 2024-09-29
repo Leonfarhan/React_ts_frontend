@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getAllBooks, deleteBook } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext";
+import { Table, Button } from 'flowbite-react';
 
 interface Book {
   id: number;
@@ -12,8 +13,9 @@ interface Book {
   publicationYear: number;
 }
 
+
 const BookList: React.FC = () => {
-  const { user, role } = useAuth(); // Hapus loading karena tidak digunakan
+  const { user, role } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
 
   useEffect(() => {
@@ -44,69 +46,76 @@ const BookList: React.FC = () => {
   };
 
   return (
-      <div className="container mt-5">
-        <div className="row">
-          <div className="col-md-12">
-            <div className="card">
-              <div className="card-header d-flex justify-content-between align-items-center">
-                <h4 className="card-title">Book List</h4>
-                {user && role && (
-                    <div className="d-flex gap-2">
-                      {role === 'ADMIN' && (
-                          <Link to="/books/create" className="btn btn-primary">
-                            Add Book
-                          </Link>
-                      )}
-                      <Link to="/dashboard" className="btn btn-secondary">
-                        Back to Dashboard
-                      </Link>
-                    </div>
+      <div className="container mx-auto p-4 py-6 h-full">
+        <div className="w-full">
+          <div className="bg-black rounded-lg">
+            <div className="flex justify-between items-center py-3 px-4 border-b">
+              <h4 className="text-xl font-bold text-white">Book List</h4>
+              <div className="space-x-2 flex">
+                {user && role === 'ADMIN' && (
+                    <Link to="/books/create">
+                      <Button color="blue" pill>Add Book</Button>
+                    </Link>
                 )}
+                <Link to="/dashboard">
+                  <Button color="purple" pill>Back to Dashboard</Button>
+                </Link>
               </div>
-              <div className="card-body">
-                <table className="table table-bordered table-striped">
-                  <thead>
-                  <tr>
-                    <th className="text-center">Title</th>
-                    <th className="text-center">Author</th>
-                    <th className="text-center">Publisher</th>
-                    <th className="text-center">Year</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                  </thead>
-                  <tbody>
+            </div>
+            <div className="card-body overflow-x-auto">
+              <Table hoverable={true}>
+                <Table.Head>
+                  <Table.HeadCell className="text-black">Title</Table.HeadCell>
+                  <Table.HeadCell className="text-black">Author</Table.HeadCell>
+                  <Table.HeadCell className="text-black">Publisher</Table.HeadCell>
+                  <Table.HeadCell className="text-black">Year</Table.HeadCell>
+                  <Table.HeadCell className="text-center text-black">Actions</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y">
                   {books.map((book) => (
-                      <tr key={book.id}>
-                        <td>{book.title}</td>
-                        <td>{book.author}</td>
-                        <td>{book.publisher}</td>
-                        <td className="text-center">{book.publicationYear}</td>
-                        <td className="text-center">
-                          {user && role && (
-                              <>
-                                {role === 'ADMIN' && (
-                                    <>
-                                      <Link to={`/books/${book.id}/edit`} className="btn btn-warning btn-sm me-2">
-                                        Edit
+                      <Table.Row key={book.id} className="bg-white">
+                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900">
+                          {book.title}
+                        </Table.Cell>
+                        <Table.Cell className="text-black">{book.author}</Table.Cell>
+                        <Table.Cell className="text-black">{book.publisher}</Table.Cell>
+                        <Table.Cell className="text-black">{book.publicationYear}</Table.Cell>
+                        <Table.Cell className="flex justify-center">
+                          <div className="flex space-x-2">
+                            {user && role && (
+                                <>
+                                  {role === 'ADMIN' && (
+                                      <>
+                                        <Link to={`/books/${book.id}/edit`}>
+                                          <Button size="xs" color="warning" pill>
+                                            Edit
+                                          </Button>
+                                        </Link>
+                                        <Button
+                                            onClick={() => handleDelete(book.id)}
+                                            size="xs"
+                                            color="failure"
+                                            pill
+                                        >
+                                          Delete
+                                        </Button>
+                                      </>
+                                  )}
+                                  {role === 'USER' && (
+                                      <Link to={`/transactions/create?bookId=${book.id}`}>
+                                        <Button size="xs" color="success" pill>
+                                          Borrow
+                                        </Button>
                                       </Link>
-                                      <button onClick={() => handleDelete(book.id)} className="btn btn-danger btn-sm">
-                                        Delete
-                                      </button>
-                                    </>
-                                )}
-                                {role === 'USER' && (
-                                    <Link to={`/transactions/create?bookId=${book.id}`} className="btn btn-success btn-sm">
-                                      Borrow
-                                    </Link>
-                                )}
-                              </>
-                          )}
-                        </td>
-                      </tr>
+                                  )}
+                                </>
+                            )}
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
                   ))}
-                  </tbody>
-                </table>
-              </div>
+                </Table.Body>
+              </Table>
             </div>
           </div>
         </div>

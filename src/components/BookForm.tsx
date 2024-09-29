@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { createBook, getBookById, updateBook } from '../services/api';
+import { Button, TextInput, Label, Card, Alert } from 'flowbite-react';
 
 const BookForm: React.FC = () => {
   const { id } = useParams();
@@ -11,7 +12,7 @@ const BookForm: React.FC = () => {
   const [author, setAuthor] = useState('');
   const [publisher, setPublisher] = useState('');
   const [publicationYear, setPublicationYear] = useState(0);
-
+  const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<{
     title?: string;
     author?: string;
@@ -45,8 +46,8 @@ const BookForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
 
-    // Validasi form
     const newErrors: typeof errors = {};
     if (!title.trim()) newErrors.title = 'Title is required';
     if (!author.trim()) newErrors.author = 'Author is required';
@@ -74,95 +75,109 @@ const BookForm: React.FC = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-header">
-              <h4 className="card-title">
+      <div className="container h-screen mx-auto pt-10">
+        <div className="flex justify-center">
+          <div className="w-full max-w-md">
+            <Card>
+              <h4 className="text-xl font-bold mb-4 text-center">
                 {id ? 'Edit Book' : 'Create Book'}
               </h4>
-            </div>
-            <div className="card-body">
+
+              {/* Alert muncul hanya ketika submitted true dan ada error */}
+              {submitted && Object.keys(errors).length > 0 && (
+                  <Alert color="failure" className="mb-4">
+                    Please fix the following errors:
+                    <ul className="mt-2">
+                      {Object.values(errors).map((error, index) => (
+                          <li key={index}>- {error}</li>
+                      ))}
+                    </ul>
+                  </Alert>
+              )}
+
               <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="title">Title:</label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.title ? 'is-invalid' : ''}`}
-                    id="title"
-                    value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value);
-                      setErrors({ ...errors, title: '' }); 
-                    }}
+                <div className="mb-4">
+                  <Label htmlFor="title" className="mb-2 block !text-black">
+                    Title:
+                  </Label>
+                  <TextInput
+                      id="title"
+                      placeholder="Enter book title"
+                      value={title}
+                      onChange={(e) => {
+                        setTitle(e.target.value);
+                        setErrors({ ...errors, title: '' });
+                      }}
+                      color={errors.title ? 'failure' : 'default'}
+                      helperText={errors.title && <span>{errors.title}</span>}
                   />
-                  {errors.title && (
-                    <div className="invalid-feedback">{errors.title}</div>
-                  )}
                 </div>
-                <div className="form-group">
-                  <label htmlFor="author">Author:</label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.author ? 'is-invalid' : ''}`}
-                    id="author"
-                    value={author}
-                    onChange={(e) => {
-                      setAuthor(e.target.value);
-                      setErrors({ ...errors, author: '' }); 
-                    }}
+
+                <div className="mb-4">
+                  <Label htmlFor="author" className="mb-2 block !text-black">
+                    Author:
+                  </Label>
+                  <TextInput
+                      id="author"
+                      placeholder="Enter author's name"
+                      value={author}
+                      onChange={(e) => {
+                        setAuthor(e.target.value);
+                        setErrors({ ...errors, author: '' });
+                      }}
+                      color={errors.author ? 'failure' : 'default'}
+                      helperText={errors.author && <span>{errors.author}</span>}
                   />
-                  {errors.author && (
-                    <div className="invalid-feedback">{errors.author}</div>
-                  )}
                 </div>
-                <div className="form-group">
-                  <label htmlFor="publisher">Publisher:</label>
-                  <input
-                    type="text"
-                    className={`form-control ${errors.publisher ? 'is-invalid' : ''}`}
-                    id="publisher"
-                    value={publisher}
-                    onChange={(e) => {
-                      setPublisher(e.target.value);
-                      setErrors({ ...errors, publisher: '' }); 
-                    }}
+
+                <div className="mb-4">
+                  <Label htmlFor="publisher" className="mb-2 block !text-black">
+                    Publisher:
+                  </Label>
+                  <TextInput
+                      id="publisher"
+                      placeholder="Enter publisher name"
+                      value={publisher}
+                      onChange={(e) => {
+                        setPublisher(e.target.value);
+                        setErrors({ ...errors, publisher: '' });
+                      }}
+                      color={errors.publisher ? 'failure' : 'default'}
+                      helperText={errors.publisher && <span>{errors.publisher}</span>}
                   />
-                  {errors.publisher && (
-                    <div className="invalid-feedback">{errors.publisher}</div>
-                  )}
                 </div>
-                <div className="form-group">
-                  <label htmlFor="publicationYear">Publication Year:</label>
-                  <input
-                    type="number"
-                    className={`form-control ${errors.publicationYear ? 'is-invalid' : ''}`}
-                    id="publicationYear"
-                    value={publicationYear}
-                    onChange={(e) => {
-                      setPublicationYear(parseInt(e.target.value, 10)); 
-                      setErrors({ ...errors, publicationYear: '' });
-                    }}
+
+                <div className="mb-4">
+                  <Label htmlFor="publicationYear" className="mb-2 block !text-black">
+                    Publication Year:
+                  </Label>
+                  <TextInput
+                      id="publicationYear"
+                      type="number"
+                      placeholder="Enter year of publication"
+                      value={publicationYear}
+                      onChange={(e) => {
+                        setPublicationYear(parseInt(e.target.value, 10));
+                        setErrors({ ...errors, publicationYear: '' });
+                      }}
+                      color={errors.publicationYear ? 'failure' : 'default'}
+                      helperText={errors.publicationYear && <span>{errors.publicationYear}</span>}
                   />
-                  {errors.publicationYear && (
-                    <div className="invalid-feedback">{errors.publicationYear}</div>
-                  )}
                 </div>
-                <div className="d-flex justify-content-end mt-3"> 
-                  <button type="submit" className="btn btn-primary me-2">
-                    Save
-                  </button>
-                  <Link to="/books" className="btn btn-secondary ml-2">
-                    Cancel
+
+                <div className="flex justify-end items-center mt-6">
+                  <Button type="submit" className="mr-2" color="success" pill>
+                    Submit
+                  </Button>
+                  <Link to="/books">
+                    <Button color="failure" pill>Cancel</Button>
                   </Link>
                 </div>
               </form>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

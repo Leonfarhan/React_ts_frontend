@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {getAllBorrowingTransactions, deleteBorrowingTransaction, updateBorrowingTransaction} from '../services/api';
+import { getAllBorrowingTransactions, deleteBorrowingTransaction, updateBorrowingTransaction } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from "../services/AuthContext.tsx";
+import { Table, Button, Card, Alert } from 'flowbite-react';
 
 interface Transaction {
   id: number;
@@ -22,6 +23,7 @@ interface Transaction {
 const TransactionList: React.FC = () => {
   const { role, user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTransactions();
@@ -38,6 +40,7 @@ const TransactionList: React.FC = () => {
       setTransactions(allTransactions);
     } catch (error) {
       console.error('Fetch transactions error:', error);
+      setError('Failed to fetch transactions.');
       toast.error('Failed to fetch transactions.');
     }
   };
@@ -50,6 +53,7 @@ const TransactionList: React.FC = () => {
         fetchTransactions();
       } catch (error) {
         console.error('Delete transaction error:', error);
+        setError('Failed to delete transaction.');
         toast.error('Failed to delete transaction.');
       }
     }
@@ -72,6 +76,7 @@ const TransactionList: React.FC = () => {
       fetchTransactions();
     } catch (error) {
       console.error('Return request error:', error);
+      setError('Failed to submit return request.');
       toast.error('Failed to submit return request.');
     }
   };
@@ -92,104 +97,91 @@ const TransactionList: React.FC = () => {
       fetchTransactions();
     } catch (error) {
       console.error('Approve return error:', error);
+      setError('Failed to approve return request.');
       toast.error('Failed to approve return request.');
     }
   };
 
   return (
-      <div>
-        <div className="container mt-5">
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h4 className="card-title">Borrowing Transactions</h4>
-                  {user && role && (
-                      <div className="d-flex gap-2">
-                        {/*{role === 'ADMIN' && (*/}
-                        {/*    <Link to="/transactions/create" className="btn btn-primary">*/}
-                        {/*      Create Transaction*/}
-                        {/*    </Link>*/}
-                        {/*)}*/}
-                        <Link to="/dashboard" className="btn btn-secondary ml-2">
-                          Back to Dashboard
-                        </Link>
-                      </div>
-                  )}
-                </div>
-
-                <div className="card-body">
-                  <table className="table table-bordered table-striped mt-2">
-                    <thead>
-                    <tr>
-                      <th className="text-center align-middle">No</th>
-                      <th className="text-center align-middle">Book</th>
-                      { role === 'ADMIN' && (
-                          <th className="text-center align-middle">User</th>
-                      )}
-                      <th className="text-center align-middle">Borrow Date</th>
-                      <th className="text-center align-middle">Return Date</th>
-                      <th className="text-center align-middle">Status</th>
-                      <th className="text-center align-middle">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {transactions.map((transaction, key) => (
-                        <tr key={key} className='text-center'>
-                          <td className='text-center'>{key + 1}</td>
-                          <td>{transaction.book.title}</td>
-                          { role === 'ADMIN' && (
-                              <td>{transaction.user.username}</td>
-                          )}
-                          <td>{transaction.borrowDate}</td>
-                          <td>{transaction.returnDate}</td>
-                          <td>{transaction.status}</td>
-                          { role === 'ADMIN' ? (
-                              <td className='d-flex justify-content-evenly'>
-                                <Link
-                                    to={`/transactions/${transaction.id}/edit`}
-                                    className="btn btn-warning btn-sm"
-                                >
-                                  Edit
-                                </Link>
-                                <button
-                                    onClick={() => handleDelete(transaction.id)}
-                                    className="btn btn-danger btn-sm"
-                                >
-                                  Delete
-                                </button>
-                                {transaction.status === 'Pending' && (
-                                    <button
-                                        onClick={() => handleApproveReturn(transaction.id)} // Gunakan handleApproveReturn
-                                        className="btn btn-success btn-sm ms-2"
-                                    >
-                                      Approve
-                                    </button>
-                                )}
-                              </td>
-                          ) : role === 'USER' ? (
-                              <td>
-                                {transaction.status === 'Borrowed' && (
-                                    <button
-                                        onClick={() => handleReturnRequest(transaction.id)}
-                                        className="btn btn-warning btn-sm"
-                                    >
-                                      Return
-                                    </button>
-                                )}
-                                {transaction.status === 'Pending' && <span>Pending</span>}
-                                {transaction.status === 'Returned' && <span>Done</span>}
-                              </td>
-
-                          ) : null}
-                        </tr>
-                    ))}
-                    </tbody>
-                  </table>
-                </div>
+      <div className="container h-screen mx-auto pt-5 p-4 !text-black">
+        <div className="w-full">
+          <Card className="shadow-lg !text-black">
+            <div className="flex justify-between items-center px-4 !text-black">
+              <h4 className="text-xl font-bold">Borrowing Transactions</h4>
+              <div className="space-x-2">
+                <Link to="/dashboard">
+                  <Button color="purple" pill>Back to Dashboard</Button>
+                </Link>
               </div>
             </div>
-          </div>
+
+            <div className="card-body overflow-x-auto">
+              {error && (
+                  <Alert color="failure" className="!text-black">
+                    {error}
+                  </Alert>
+              )}
+              <Table hoverable={true}>
+                <Table.Head className="!text-black">
+                  <Table.HeadCell className="text-center">No</Table.HeadCell>
+                  <Table.HeadCell>Book</Table.HeadCell>
+                  {role === 'ADMIN' && <Table.HeadCell>User</Table.HeadCell>}
+                  <Table.HeadCell>Borrow Date</Table.HeadCell>
+                  <Table.HeadCell>Return Date</Table.HeadCell>
+                  <Table.HeadCell className="text-center">Status</Table.HeadCell>
+                  <Table.HeadCell className="text-center">Actions</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y !text-black">
+                  {transactions.map((transaction, key) => (
+                      <Table.Row key={key} className="bg-white !text-black">
+                        <Table.Cell className="text-center">{key + 1}</Table.Cell>
+                        <Table.Cell>{transaction.book.title}</Table.Cell>
+                        {role === 'ADMIN' && <Table.Cell>{transaction.user.username}</Table.Cell>}
+                        <Table.Cell>{transaction.borrowDate}</Table.Cell>
+                        <Table.Cell>{transaction.returnDate}</Table.Cell>
+                        <Table.Cell className="text-center">
+                      <span className={`px-2 py-1 rounded-lg ${
+                          transaction.status === 'Borrowed' ? 'bg-yellow-200' :
+                              transaction.status === 'Pending' ? 'bg-blue-200' : 'bg-green-200'
+                      }`}>
+                        {transaction.status}
+                      </span>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <div className="flex space-x-2 justify-center">
+                            {role === 'ADMIN' ? (
+                                <>
+                                  <Link to={`/transactions/${transaction.id}/edit`}>
+                                    <Button size="xs" color="warning">Edit</Button>
+                                  </Link>
+                                  <Button onClick={() => handleDelete(transaction.id)} size="xs" color="failure">
+                                    Delete
+                                  </Button>
+                                  {transaction.status === 'Pending' && (
+                                      <Button onClick={() => handleApproveReturn(transaction.id)} size="xs" color="success">
+                                        Approve
+                                      </Button>
+                                  )}
+                                </>
+                            ) : role === 'USER' ? (
+                                <>
+                                  {transaction.status === 'Borrowed' && (
+                                      <Button onClick={() => handleReturnRequest(transaction.id)} size="xs" color="warning">
+                                        Return
+                                      </Button>
+                                  )}
+                                  {transaction.status === 'Pending' && <span className="text-center">Pending</span>}
+                                  {transaction.status === 'Returned' && <span className="text-center">Done</span>}
+                                </>
+                            ) : null}
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          </Card>
         </div>
       </div>
   );

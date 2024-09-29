@@ -8,7 +8,8 @@ const api = axios.create({
 
 // --- Authentication ---
 export const login = async (userData: { username: string; password: string }) => {
-  return await api.post('/login', userData);
+  return api.post('/login', userData);
+  // return await api.post('/login', userData);
 };
 
 // --- Book Services ---
@@ -17,13 +18,6 @@ export const getBookById = async (id: number) => await api.get(`/books/${id}`);
 export const createBook = async (bookData: { title: string; author: string; publisher: string; publicationYear: number }) => await api.post('/books', bookData);
 export const updateBook = async (id: number, bookData: { title: string; author: string; publisher: string; publicationYear: number }) => await api.put(`/books/${id}`, bookData);
 export const deleteBook = async (id: number) => await api.delete(`/books/${id}`);
-
-// --- User Services ---
-export const getAllUsers = async () => await api.get('/users');
-export const getUserById = async (id: number) => await api.get(`/users/${id}`);
-export const createUser = async (userData: { username: string; password: string; role: string }) => await api.post('/users', userData); 
-export const updateUser = async (id: number, userData: { username: string; password: string; role: string }) => await api.put(`/users/${id}`, userData); 
-export const deleteUser = async (id: number) => await api.delete(`/users/${id}`);
 
 // --- Borrowing Transaction Services ---
 export const getAllBorrowingTransactions = async () => await api.get('/borrowing-transactions');
@@ -53,4 +47,4 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export default api;
+export { api };

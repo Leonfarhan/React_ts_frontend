@@ -1,9 +1,8 @@
 import React from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Login from './components/Login';
 import BookList from './components/BookList';
-import BookForm from './components/BookForm';
+import BookForm from './components/BookForm.tsx';
 import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
 import Dashboard from './components/Dashboard';
@@ -16,7 +15,7 @@ const App: React.FC = () => {
   return (
       <AuthProvider>
         <Router>
-          <div>
+          <div className="w-full h-full" style={{background: `linear-gradient(to top, #09203f 0%, #537895 100%)`}}>
             <Routes>
               <Route path="/" element={isLoggedIn ? <Navigate to='/dashboard'/> : <Login/>} />
               <Route element={<PrivateRoute />}>
