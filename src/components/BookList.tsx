@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllBooks, deleteBook } from '../services/api';
 import { toast } from 'react-toastify';
-import { useAuth } from "../services/AuthContext";
+import { useAuth } from "../services/AuthProvider";
 import { Table, Button } from 'flowbite-react';
 
 interface Book {

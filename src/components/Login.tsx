@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { login } from '../services/api';
-import { useAuth } from "../services/AuthContext.tsx";
+import { useAuth } from "../services/AuthProvider.tsx";
 
 interface LoginResponse {
   message: string;

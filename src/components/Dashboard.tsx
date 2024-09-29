@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from "../services/AuthContext.tsx";
+import { useAuth } from "../services/AuthProvider.tsx";
 import { Button, Card } from 'flowbite-react';
 
 const Dashboard: React.FC = () => {

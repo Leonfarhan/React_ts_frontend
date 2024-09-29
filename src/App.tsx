@@ -7,7 +7,7 @@ import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
 import Dashboard from './components/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from "./services/AuthContext.tsx";
+import {AuthProvider} from "./services/AuthProvider.tsx";
 
 const App: React.FC = () => {
   const isLoggedIn = !!localStorage.getItem('token');

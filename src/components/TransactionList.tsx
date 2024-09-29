@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllBorrowingTransactions, deleteBorrowingTransaction, updateBorrowingTransaction } from '../services/api';
 import { toast } from 'react-toastify';
-import { useAuth } from "../services/AuthContext.tsx";
+import { useAuth } from "../services/AuthProvider.tsx";
 import { Table, Button, Card, Alert } from 'flowbite-react';
 
 interface Transaction {
